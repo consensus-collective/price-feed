@@ -28,12 +28,14 @@ export function Coin() {
     setDisabled(false);
     setConversion("");
     setAmount(amount);
+    setPrice("0");
   };
 
   const onChangeFirstCoin = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = event.target.value;
     setDisabled(false);
     setConversion("");
+    setPrice("0");
     setCoins((coin) => {
       if (coin.second !== value) {
         return {
@@ -54,6 +56,7 @@ export function Coin() {
     const value = event.target.value;
     setDisabled(false);
     setConversion("");
+    setPrice("0");
     setCoins((coin) => ({ ...coin, second: value }));
   };
 
