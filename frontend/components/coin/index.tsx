@@ -1,22 +1,18 @@
 import React, { useState } from "react";
 import { ShowIf } from "../common/show-if";
 
+import styles from "./coin.module.css";
+
 const COINS = ["BTC", "ETH"];
 
 export function Coin() {
   const [loading, setLoading] = useState<boolean>(false);
   const [coins, setCoins] = useState<[string, string]>(["", ""]);
-  const [amount, setAmount] = useState<string>("0");
-  const [price, setPrice] = useState<string>("0");
+  const [amounts, setAmounts] = useState<[string, string]>(["0", "0"]);
   const [info, setInfo] = useState<string>("");
 
   const isSame = coins[0] === coins[1];
-  const isDisable = !coins[0] || !coins[1] || isSame || Number(amount) <= 0;
-
-  const reset = () => {
-    setInfo("");
-    setPrice("0");
-  };
+  const isDisable = !coins[0] || !coins[1] || isSame || Number(amounts[0]) <= 0;
 
   const onChangeAmount = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -25,8 +21,9 @@ export function Coin() {
       return;
     }
 
-    setAmount(amount);
-    reset();
+    amounts[0] = amount;
+    setAmounts(() => [...amounts]);
+    setInfo("");
   };
 
   const onChangeCoin = (
@@ -44,8 +41,8 @@ export function Coin() {
 
     coins[index] = value;
     setCoins(() => [...coins]);
-    setAmount("0");
-    reset();
+    setAmounts(() => ["0", "0"]);
+    setInfo("");
   };
 
   const onGetPrice = () => {
@@ -54,9 +51,10 @@ export function Coin() {
 
       const [first, second] = coins;
       console.log(first, second);
-      const price = Number(amount) * 15.83;
+      const price = Number(amounts[0]) * 15.83;
+      amounts[1] = price.toString();
       setInfo("1 ETH = 0.062979699 BTC");
-      setPrice(price.toString());
+      setAmounts(() => [...amounts]);
     } catch {
       // ignore
     } finally {
@@ -66,8 +64,16 @@ export function Coin() {
 
   const onSwitchCoin = () => {
     setCoins(() => [coins[1], coins[0]]);
-    reset();
-    setAmount("0");
+    if (Number(amounts[0]) > 0 && Number(amounts[1]) > 0) {
+      const tmpAmount = amounts[0];
+      const tmpPrice = amounts[1];
+      amounts[0] = tmpPrice;
+      amounts[1] = tmpAmount;
+      setAmounts(() => [...amounts]);
+    } else {
+      setInfo("");
+      setAmounts(() => ["0", "0"]);
+    }
   };
 
   return (
@@ -92,12 +98,16 @@ export function Coin() {
         <input
           type="text"
           className="form-control"
-          placeholder="amount"
           onChange={onChangeAmount}
-          value={amount}
+          value={amounts[0]}
           style={{ textAlign: "right" }}
         />
       </div>
+
+      <a className="btn" onClick={onSwitchCoin}>
+        <i className="bi bi-arrow-down-up" style={{ color: "black" }} />
+      </a>
+
       <div className="input-group">
         <select
           className="form-select"
@@ -118,8 +128,7 @@ export function Coin() {
         <input
           type="text"
           className="form-control"
-          placeholder="price"
-          value={price}
+          value={amounts[1]}
           disabled
           style={{ textAlign: "right" }}
         />
