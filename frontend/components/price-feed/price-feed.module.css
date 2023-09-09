@@ -29,7 +29,7 @@
 .body_container {
   display: flex;
   width: 25%;
-  height: 50%;
+  /* height: 80%; */
   flex-wrap: wrap;
   flex-direction: column;
   justify-content: center;
