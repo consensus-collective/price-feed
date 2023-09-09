@@ -87,7 +87,7 @@ export function Coin() {
           </option>
           {COINS.map((coin) => {
             return (
-              <option key={coin} value={coin}>
+              <option disabled={coin === coins[1]} key={coin} value={coin}>
                 {coin}
               </option>
             );
@@ -117,7 +117,7 @@ export function Coin() {
           </option>
           {COINS.map((coin) => {
             return (
-              <option key={coin} value={coin}>
+              <option key={coin} value={coin} disabled={coin === coins[0]}>
                 {coin}
               </option>
             );
