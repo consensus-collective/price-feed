@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { ShowIf } from "../common/show-if";
 
-import styles from "./coin.module.css";
-
 const COINS = ["BTC", "ETH"];
 
 export function Coin() {
