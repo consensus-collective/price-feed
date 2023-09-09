@@ -1,5 +1,7 @@
 import { ConnectKitButton } from "connectkit";
+
 import styles from "./navbar.module.css";
+
 export default function Navbar() {
   return (
     <nav className={styles.navbar}>
@@ -9,7 +11,7 @@ export default function Navbar() {
           href="https://github.com/consensus-collective/price-feed"
           target={"_blank"}
         >
-          <p>Github Repository</p>
+          Github Repository
         </a>
       </div>
       <div className={styles.rightContent}>
