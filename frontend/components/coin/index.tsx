@@ -3,20 +3,20 @@ import { ShowIf } from "../common/show-if";
 
 const COINS = ["BTC", "ETH"];
 
-interface Coins {
-  first: string;
-  second: string;
-}
-
 export function Coin() {
   const [loading, setLoading] = useState<boolean>(false);
-  const [coins, setCoins] = useState<Coins>({ first: "", second: "" });
+  const [coins, setCoins] = useState<[string, string]>(["", ""]);
   const [amount, setAmount] = useState<string>("0");
   const [price, setPrice] = useState<string>("0");
-  const [disabled, setDisabled] = useState<boolean>(false);
-  const [conversion, setConversion] = useState<string>("");
+  const [info, setInfo] = useState<string>("");
 
-  const isDisable = !coins.first || !coins.second || Number(amount) <= 0;
+  const isSame = coins[0] === coins[1];
+  const isDisable = !coins[0] || !coins[1] || isSame || Number(amount) <= 0;
+
+  const reset = () => {
+    setInfo("");
+    setPrice("0");
+  };
 
   const onChangeAmount = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -25,51 +25,38 @@ export function Coin() {
       return;
     }
 
-    setDisabled(false);
-    setConversion("");
     setAmount(amount);
-    setPrice("0");
+    reset();
   };
 
-  const onChangeFirstCoin = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const onChangeCoin = (
+    event: React.ChangeEvent<HTMLSelectElement>,
+    index: number,
+  ) => {
     const value = event.target.value;
-    setDisabled(false);
-    setConversion("");
-    setPrice("0");
-    setCoins((coin) => {
-      if (coin.second !== value) {
-        return {
-          ...coin,
-          first: value,
-        };
-      }
+    const otherIndex = index === 0 ? 1 : 0;
+    const otherCoin = coins[otherIndex];
 
-      const secondCoin = COINS.find((coin) => coin !== value) ?? "";
-      return {
-        first: value,
-        second: secondCoin,
-      };
-    });
-  };
+    if (otherCoin === value) {
+      const newCoin = COINS.find((coin) => coin !== value);
+      if (newCoin) coins[otherIndex] = newCoin;
+    }
 
-  const onChangeSecondCoin = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = event.target.value;
-    setDisabled(false);
-    setConversion("");
-    setPrice("0");
-    setCoins((coin) => ({ ...coin, second: value }));
+    coins[index] = value;
+    setCoins(() => [...coins]);
+    setAmount("0");
+    reset();
   };
 
   const onGetPrice = () => {
     try {
       setLoading(true);
 
-      const { first, second } = coins;
+      const [first, second] = coins;
       console.log(first, second);
       const price = Number(amount) * 15.83;
-      setConversion("1 ETH = 0.062979699 BTC");
+      setInfo("1 ETH = 0.062979699 BTC");
       setPrice(price.toString());
-      setDisabled(true);
     } catch {
       // ignore
     } finally {
@@ -77,13 +64,19 @@ export function Coin() {
     }
   };
 
+  const onSwitchCoin = () => {
+    setCoins(() => [coins[1], coins[0]]);
+    reset();
+    setAmount("0");
+  };
+
   return (
     <React.Fragment>
       <div className="input-group">
         <select
           className="form-select"
-          value={coins.first}
-          onChange={onChangeFirstCoin}
+          value={coins[0]}
+          onChange={(event) => onChangeCoin(event, 0)}
         >
           <option disabled value="">
             Select coin...
@@ -108,15 +101,15 @@ export function Coin() {
       <div className="input-group">
         <select
           className="form-select"
-          value={coins.second}
-          onChange={onChangeSecondCoin}
+          value={coins[1]}
+          onChange={(event) => onChangeCoin(event, 1)}
         >
           <option disabled value="">
             Select coin...
           </option>
           {COINS.map((coin) => {
             return (
-              <option disabled={coins.first === coin} key={coin} value={coin}>
+              <option key={coin} value={coin}>
                 {coin}
               </option>
             );
@@ -131,18 +124,13 @@ export function Coin() {
           style={{ textAlign: "right" }}
         />
       </div>
-      <ShowIf condition={conversion !== ""}>
+      <ShowIf condition={info !== ""}>
         <div className="input-group">
-          <input
-            type="text"
-            className="form-control"
-            value={conversion}
-            disabled
-          />
+          <input type="text" className="form-control" value={info} disabled />
         </div>
       </ShowIf>
       <button
-        disabled={loading || isDisable || disabled}
+        disabled={loading || isDisable}
         className="btn btn-primary"
         type="button"
         onClick={onGetPrice}
