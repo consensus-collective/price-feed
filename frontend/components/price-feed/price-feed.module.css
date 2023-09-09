@@ -28,46 +28,12 @@
 
 .body_container {
   display: flex;
-  width: 25%;
-  /* height: 80%; */
   flex-wrap: wrap;
   flex-direction: column;
   justify-content: center;
   gap: 1.5rem;
   color: white;
   padding: 24px 32px;
-  /* background: rgba(0, 0, 0, 0.9); */
   box-shadow: 2px 2px 3px rgb(142, 142, 142);
   border-radius: 12px;
-}
-
-/* .button {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-
-  padding: 24px 32px;
-  gap: 12px;
-
-  width: 392px;
-  height: 80px;
-
-  background: rgba(0, 0, 0, 0.9);
-  box-shadow: 2px 2px 3px rgb(142, 142, 142);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.5s;
-}
-
-.button:hover {
-  background: rgba(0, 0, 0, 0.88);
-  box-shadow: 6px 6px 6px rgb(234, 234, 234);
-  transform: translateY(-3px);
-}
- */
-.button p {
-  font-style: normal;
-  font-size: 18px;
-  line-height: 28px;
 }
