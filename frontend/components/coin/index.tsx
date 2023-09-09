@@ -77,8 +77,12 @@ export function Coin() {
   return (
     <React.Fragment>
       <div className="input-group">
-        <select className="form-select" onChange={onChangeFirstCoin}>
-          <option selected disabled>
+        <select
+          className="form-select"
+          value={coins.first}
+          onChange={onChangeFirstCoin}
+        >
+          <option disabled value="">
             Select coin...
           </option>
           {COINS.map((coin) => {
@@ -99,18 +103,17 @@ export function Coin() {
         />
       </div>
       <div className="input-group">
-        <select className="form-select" onChange={onChangeSecondCoin}>
-          <option selected disabled>
+        <select
+          className="form-select"
+          value={coins.second}
+          onChange={onChangeSecondCoin}
+        >
+          <option disabled value="">
             Select coin...
           </option>
           {COINS.map((coin) => {
             return (
-              <option
-                disabled={coins.first === coin}
-                selected={coins.second === coin}
-                key={coin}
-                value={coin}
-              >
+              <option disabled={coins.first === coin} key={coin} value={coin}>
                 {coin}
               </option>
             );
