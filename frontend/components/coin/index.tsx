@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ShowIf } from "../common/show-if";
 import {
+  Avatar,
   Select,
   SelectItem,
   Input,
@@ -9,11 +10,25 @@ import {
   AccordionItem,
 } from "@nextui-org/react";
 
-const COINS = ["BTC", "ETH"];
+interface ICoin {
+  name?: string;
+  url?: string;
+}
+
+const COINS = [
+  {
+    name: "BTC",
+    url: "https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=026",
+  },
+  {
+    name: "ETH",
+    url: "https://cryptologos.cc/logos/ethereum-eth-logo.png?v=026",
+  },
+];
 
 export function Coin() {
   const [loading, setLoading] = useState<boolean>(false);
-  const [coins, setCoins] = useState<[string, string]>(["", ""]);
+  const [coins, setCoins] = useState<[ICoin, ICoin]>([{}, {}]);
   const [amounts, setAmounts] = useState<[string, string]>(["0", "0"]);
   const [info, setInfo] = useState<string>("");
 
@@ -40,11 +55,14 @@ export function Coin() {
     const otherCoin = coins[otherIndex];
 
     if (value !== "" && otherCoin === value) {
-      const newCoin = COINS.find((coin) => coin !== value);
-      if (newCoin) coins[otherIndex] = newCoin;
+      const newCoin = COINS.find((coin) => coin.name !== value);
+      if (newCoin) {
+        coins[otherIndex].name = newCoin.name;
+        coins[otherIndex].url = newCoin.url;
+      }
     }
 
-    coins[index] = value;
+    coins[index].name = value;
     setCoins(() => [...coins]);
     setAmounts(() => ["0", "0"]);
     setInfo("");
@@ -57,9 +75,8 @@ export function Coin() {
       const [first, second] = coins;
       console.log(first, second);
       const price = Number(amounts[0]) * 15.83;
-      amounts[1] = price.toString();
       setInfo("1 ETH = 0.062979699 BTC");
-      setAmounts(() => [...amounts]);
+      setAmounts((amounts) => [amounts[0], price.toString()]);
     } catch {
       // ignore
     } finally {
@@ -69,16 +86,18 @@ export function Coin() {
 
   const onSwitchCoin = () => {
     setCoins(() => [coins[1], coins[0]]);
+
     if (Number(amounts[0]) > 0 && Number(amounts[1]) > 0) {
-      const tmpAmount = amounts[0];
-      const tmpPrice = amounts[1];
-      amounts[0] = tmpPrice;
-      amounts[1] = tmpAmount;
-      setAmounts(() => [...amounts]);
+      setAmounts(() => [amounts[1], amounts[0]]);
     } else {
       setInfo("");
       setAmounts(() => ["0", "0"]);
     }
+  };
+
+  const onSelectCoin = (coin: ICoin, index: number) => {
+    coins[index].url = coins[index].name !== "" ? coin.url : "";
+    setCoins(() => [...coins]);
   };
 
   return (
@@ -90,12 +109,28 @@ export function Coin() {
             className="max-w-xs"
             placeholder="Select coin"
             onChange={(event) => onChangeCoin(event, 0)}
-            selectedKeys={!coins[0] ? [] : [coins[0]]}
-            disabledKeys={[coins[1]]}
+            selectedKeys={!coins[0].name ? [] : [coins[0].name]}
+            disabledKeys={[coins[1].name ?? ""]}
+            startContent={
+              coins[0].url && (
+                <Avatar
+                  alt={coins[0].name}
+                  className="w-6 h-6"
+                  src={coins[0].url}
+                />
+              )
+            }
           >
             {COINS.map((coin) => (
-              <SelectItem key={coin} value={coin}>
-                {coin}
+              <SelectItem
+                key={coin.name}
+                textValue={coin.name}
+                onClick={() => onSelectCoin(coin, 0)}
+                startContent={
+                  <Avatar alt={coin.name} className="w-6 h-6" src={coin.url} />
+                }
+              >
+                {coin.name}
               </SelectItem>
             ))}
           </Select>
@@ -123,12 +158,28 @@ export function Coin() {
             label="To:"
             placeholder="Select coin"
             onChange={(event) => onChangeCoin(event, 1)}
-            selectedKeys={!coins[1] ? [] : [coins[1]]}
-            disabledKeys={[coins[0]]}
+            selectedKeys={!coins[1].name ? [] : [coins[1].name]}
+            disabledKeys={[coins[0].name ?? ""]}
+            startContent={
+              coins[1].url && (
+                <Avatar
+                  alt={coins[1].name}
+                  className="w-6 h-6"
+                  src={coins[1].url}
+                />
+              )
+            }
           >
             {COINS.map((coin) => (
-              <SelectItem key={coin} value={coin}>
-                {coin}
+              <SelectItem
+                key={coin.name}
+                textValue={coin.name}
+                onClick={() => onSelectCoin(coin, 1)}
+                startContent={
+                  <Avatar alt={coin.name} className="w-6 h-6" src={coin.url} />
+                }
+              >
+                {coin.name}
               </SelectItem>
             ))}
           </Select>
@@ -139,7 +190,7 @@ export function Coin() {
           <AccordionItem
             key={1}
             title="Price"
-            subtitle={`${amounts[1]} ${coins[1]}`}
+            subtitle={`${amounts[1]} ${coins[1].name}`}
           >
             {info}
           </AccordionItem>
