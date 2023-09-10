@@ -113,12 +113,28 @@ export function Coin() {
           />
         </div>
       </div>
+      <Button
+        color="primary"
+        isLoading={loading}
+        isDisabled={loading || isDisable}
+        onClick={onGetPrice}
+      >
+        {loading ? "Loading..." : "Get Prices"}
+      </Button>
       <ShowIf condition={Number(amounts[1]) > 0}>
         <Accordion variant="splitted">
           <AccordionItem
             key={1}
-            title="Price"
-            subtitle={`${amounts[1]} ${coins[1].name}`}
+            title={
+              <p style={{ fontSize: "15px", color: "rgba(1, 1, 1, 0.6)" }}>
+                Price:
+              </p>
+            }
+            subtitle={
+              <p style={{ fontSize: "16px", color: "black" }}>
+                {amounts[1]} {coins[1].name}
+              </p>
+            }
           >
             <hr style={{ marginBottom: "10px" }} />
             {infos.map((info) => (
@@ -129,14 +145,6 @@ export function Coin() {
           </AccordionItem>
         </Accordion>
       </ShowIf>
-      <Button
-        color="primary"
-        isLoading={loading}
-        isDisabled={loading || isDisable}
-        onClick={onGetPrice}
-      >
-        {loading ? "Loading..." : "Get Prices"}
-      </Button>
     </React.Fragment>
   );
 }
