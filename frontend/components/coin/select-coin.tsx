@@ -1,13 +1,14 @@
 import { Select, Avatar, SelectItem } from "@nextui-org/react";
-import { ICoin } from ".";
+import { Coins, ICoin } from ".";
 
 interface IProps {
-  coins: [ICoin, ICoin];
+  coins: Coins;
   index: number;
   label: string;
   placeholder: string;
-  onSelectCoin: (coins: [ICoin, ICoin]) => void;
-  onChangeCoin: (coins: [ICoin, ICoin]) => void;
+  onSelectCoin: (coins: Coins) => void;
+  onChangeCoin: (coins: Coins) => void;
+  onOpen: (state: boolean, index: number) => void;
 }
 
 const COINS = [
@@ -22,8 +23,15 @@ const COINS = [
 ];
 
 export function SelectCoin(props: IProps) {
-  const { index, coins, label, placeholder, onChangeCoin, onSelectCoin } =
-    props;
+  const {
+    index,
+    coins,
+    label,
+    placeholder,
+    onChangeCoin,
+    onSelectCoin,
+    onOpen,
+  } = props;
 
   const coin = coins[index];
   const selectedKeys = coin?.name ? [coin.name] : [];
@@ -35,7 +43,7 @@ export function SelectCoin(props: IProps) {
     const otherIndex = index === 0 ? 1 : 0;
     const otherCoin = coins[otherIndex];
 
-    if (value !== "" && otherCoin === value) {
+    if (value !== "" && otherCoin.name === value) {
       const newCoin = COINS.find((coin) => coin.name !== value);
       if (newCoin) {
         coins[otherIndex].name = newCoin.name;
@@ -55,10 +63,12 @@ export function SelectCoin(props: IProps) {
 
   return (
     <Select
+      isOpen={coin.open}
       label={label}
       className={index === 0 ? "max-w-xs" : ""}
       placeholder={placeholder}
       onChange={onChange}
+      onClick={() => onOpen(!coin.open, index)}
       selectedKeys={selectedKeys}
       disabledKeys={disabledKeys}
       startContent={
@@ -71,7 +81,7 @@ export function SelectCoin(props: IProps) {
         <SelectItem
           key={coin.name}
           textValue={coin.name}
-          onClick={() => onSelect(coin)}
+          onClick={() => onSelect(coin as ICoin)}
           startContent={
             <Avatar alt={coin.name} className="w-6 h-6" src={coin.url} />
           }
