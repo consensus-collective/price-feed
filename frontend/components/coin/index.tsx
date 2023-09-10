@@ -8,15 +8,20 @@ export interface ICoin {
   url?: string;
 }
 
+const PRICE: Record<string, number> = {
+  BTC: 25817.8,
+  ETH: 1622.77,
+};
+
 export function Coin() {
   const [loading, setLoading] = useState<boolean>(false);
   const [coins, setCoins] = useState<[ICoin, ICoin]>([{}, {}]);
   const [amounts, setAmounts] = useState<[string, string]>(["0", "0"]);
-  const [info, setInfo] = useState<string>("");
+  const [infos, setInfos] = useState<string[]>([]);
 
   const isSame = coins[0].name === coins[1].name;
   const isZero = Number(amounts[0]) <= 0;
-  const isExist = coins[0].name || coins[1].name
+  const isExist = coins[0].name || coins[1].name;
   const isDisable = !isExist || isSame || isZero;
 
   const onChangeAmount = (value: string) => {
@@ -27,18 +32,22 @@ export function Coin() {
 
     amounts[0] = amount;
     setAmounts(() => [amounts[0], "0"]);
-    setInfo("");
+    setInfos([]);
   };
 
   const onGetPrice = () => {
+    if (!isExist) return;
     try {
       setLoading(true);
 
       const [first, second] = coins;
-      console.log(first, second);
-      const price = Number(amounts[0]) * 15.83;
-      setInfo("1 ETH = 0.062979699 BTC");
-      setAmounts((amounts) => [amounts[0], price.toString()]);
+      const ratio = PRICE[first.name as string] / PRICE[second.name as string];
+      const price = Number(amounts[0]) * ratio;
+      setAmounts((amounts) => [amounts[0], price.toFixed(5)]);
+      setInfos([
+        `1 ${second.name} = ${(1 / ratio).toFixed(5)} ${first.name}`,
+        `1 ${first.name} = ${ratio.toFixed(5)} ${second.name}`,
+      ]);
     } catch {
       // ignore
     } finally {
@@ -48,19 +57,14 @@ export function Coin() {
 
   const onSwitchCoin = () => {
     setCoins(() => [coins[1], coins[0]]);
-
-    if (Number(amounts[0]) > 0 && Number(amounts[1]) > 0) {
-      setAmounts(() => [amounts[1], amounts[0]]);
-    } else {
-      setInfo("");
-      setAmounts(() => ["0", "0"]);
-    }
+    setInfos([]);
+    setAmounts(() => [amounts[0], "0"]);
   };
 
   const onChangeCoin = (coins: [ICoin, ICoin]) => {
     setCoins(() => [...coins]);
     setAmounts(() => ["0", "0"]);
-    setInfo("");
+    setInfos([]);
   };
 
   const onSelectCoin = (coins: [ICoin, ICoin]) => {
@@ -116,7 +120,12 @@ export function Coin() {
             title="Price"
             subtitle={`${amounts[1]} ${coins[1].name}`}
           >
-            {info}
+            <hr style={{ marginBottom: "10px" }} />
+            {infos.map((info) => (
+              <p style={{ fontSize: "13px", color: "rgba(1, 1, 1, 0.6)" }}>
+                {info}
+              </p>
+            ))}
           </AccordionItem>
         </Accordion>
       </ShowIf>
