@@ -21,8 +21,8 @@ export function Coin() {
 
   const isSame = coins[0].name === coins[1].name;
   const isZero = Number(amounts[0]) <= 0;
-  const isExist = coins[0].name || coins[1].name;
-  const isDisable = !isExist || isSame || isZero;
+  const isNotExist = !coins[0].name || !coins[1].name;
+  const isDisable = isNotExist || isSame || isZero;
 
   const onChangeAmount = (value: string) => {
     const amount = validateNumber(value);
@@ -36,7 +36,8 @@ export function Coin() {
   };
 
   const onGetPrice = () => {
-    if (!isExist) return;
+    if (isNotExist) return;
+
     try {
       setLoading(true);
 
