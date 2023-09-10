@@ -1,11 +1,11 @@
 import "../styles/globals.css";
-import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 import { AppProps } from "next/app";
 import { WagmiConfig, configureChains, createConfig, sepolia } from "wagmi";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import { alchemyProvider } from "wagmi/providers/alchemy";
+import { NextUIProvider } from "@nextui-org/react";
 
 import Layout from "@/components/layout";
 
@@ -35,13 +35,15 @@ const App = (props: AppProps) => {
   const { Component, pageProps } = props;
 
   return (
-    <WagmiConfig config={config}>
-      <ConnectKitProvider>
-        <Layout>
-          <Component {...pageProps}></Component>
-        </Layout>
-      </ConnectKitProvider>
-    </WagmiConfig>
+    <NextUIProvider>
+      <WagmiConfig config={config}>
+        <ConnectKitProvider>
+          <Layout>
+            <Component {...pageProps}></Component>
+          </Layout>
+        </ConnectKitProvider>
+      </WagmiConfig>
+    </NextUIProvider>
   );
 };
 
