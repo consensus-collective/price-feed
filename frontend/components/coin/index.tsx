@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ShowIf } from "../common/show-if";
+import { Select, SelectItem, Input, Button } from "@nextui-org/react";
 
 const COINS = ["BTC", "ETH"];
 
@@ -12,15 +13,14 @@ export function Coin() {
   const isSame = coins[0] === coins[1];
   const isDisable = !coins[0] || !coins[1] || isSame || Number(amounts[0]) <= 0;
 
-  const onChangeAmount = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
+  const onChangeAmount = (value: string) => {
     const amount = validateNumber(value);
     if (!amount) {
       return;
     }
 
     amounts[0] = amount;
-    setAmounts(() => [...amounts]);
+    setAmounts(() => [amounts[0], "0"]);
     setInfo("");
   };
 
@@ -32,7 +32,7 @@ export function Coin() {
     const otherIndex = index === 0 ? 1 : 0;
     const otherCoin = coins[otherIndex];
 
-    if (otherCoin === value) {
+    if (value !== "" && otherCoin === value) {
       const newCoin = COINS.find((coin) => coin !== value);
       if (newCoin) coins[otherIndex] = newCoin;
     }
@@ -76,74 +76,77 @@ export function Coin() {
 
   return (
     <React.Fragment>
-      <div className="input-group">
-        <select
-          className="form-select"
-          value={coins[0]}
-          onChange={(event) => onChangeCoin(event, 0)}
-        >
-          <option disabled value="">
-            Select coin...
-          </option>
-          {COINS.map((coin) => {
-            return (
-              <option disabled={coin === coins[1]} key={coin} value={coin}>
+      <div className="flex flex-col gap-4 relative">
+        <div className=" flex flex-row gap-4">
+          <Select
+            label="Coin"
+            className="max-w-xs"
+            placeholder="Select coin"
+            onChange={(event) => onChangeCoin(event, 0)}
+            selectedKeys={!coins[0] ? [] : [coins[0]]}
+            disabledKeys={[coins[1]]}
+          >
+            {COINS.map((coin) => (
+              <SelectItem key={coin} value={coin}>
                 {coin}
-              </option>
-            );
-          })}
-        </select>
-        <input
-          type="text"
-          className="form-control"
-          onChange={onChangeAmount}
-          value={amounts[0]}
-          style={{ textAlign: "right" }}
-        />
-      </div>
-
-      <a className="btn" onClick={onSwitchCoin}>
-        <i className="bi bi-arrow-down-up" style={{ color: "black" }} />
-      </a>
-
-      <div className="input-group">
-        <select
-          className="form-select"
-          value={coins[1]}
-          onChange={(event) => onChangeCoin(event, 1)}
-        >
-          <option disabled value="">
-            Select coin...
-          </option>
-          {COINS.map((coin) => {
-            return (
-              <option key={coin} value={coin} disabled={coin === coins[0]}>
+              </SelectItem>
+            ))}
+          </Select>
+          <Input
+            label="Amount"
+            type="text"
+            className="max-w-xs"
+            value={amounts[0]}
+            onValueChange={onChangeAmount}
+          />
+        </div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 p-1 bg-white rounded-full">
+          <Button
+            // className="align-center"
+            onClick={onSwitchCoin}
+            radius="full"
+            variant="faded"
+            color="warning"
+            isIconOnly
+          >
+            <i className="bi bi-arrow-down-up" style={{ color: "black" }} />
+          </Button>
+        </div>
+        <div className=" flex flex-row gap-4">
+          <Select
+            label="Coin"
+            className="max-w-xs"
+            placeholder="Select coin"
+            onChange={(event) => onChangeCoin(event, 1)}
+            selectedKeys={!coins[1] ? [] : [coins[1]]}
+            disabledKeys={[coins[0]]}
+          >
+            {COINS.map((coin) => (
+              <SelectItem key={coin} value={coin}>
                 {coin}
-              </option>
-            );
-          })}
-        </select>
-        <input
-          type="text"
-          className="form-control"
-          value={amounts[1]}
-          disabled
-          style={{ textAlign: "right" }}
-        />
+              </SelectItem>
+            ))}
+          </Select>
+          <Input
+            label="Price"
+            className="max-w-xs"
+            type="text"
+            value={amounts[1]}
+            isDisabled
+          />
+        </div>
       </div>
       <ShowIf condition={info !== ""}>
-        <div className="input-group">
-          <input type="text" className="form-control" value={info} disabled />
-        </div>
+        <Input type="text" value={info} disabled />
       </ShowIf>
-      <button
-        disabled={loading || isDisable}
-        className="btn btn-primary"
-        type="button"
+      <Button
+        color="primary"
+        isLoading={loading}
+        isDisabled={loading || isDisable}
         onClick={onGetPrice}
       >
-        Get Prices
-      </button>
+        {loading ? "Loading..." : "Get Prices"}
+      </Button>
     </React.Fragment>
   );
 }
