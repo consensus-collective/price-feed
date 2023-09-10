@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import { ShowIf } from "../common/show-if";
-import { Select, SelectItem, Input, Button } from "@nextui-org/react";
+import {
+  Select,
+  SelectItem,
+  Input,
+  Button,
+  Accordion,
+  AccordionItem,
+} from "@nextui-org/react";
 
 const COINS = ["BTC", "ETH"];
 
@@ -79,7 +86,7 @@ export function Coin() {
       <div className="flex flex-col gap-4 relative">
         <div className=" flex flex-row gap-4">
           <Select
-            label="Coin"
+            label="From:"
             className="max-w-xs"
             placeholder="Select coin"
             onChange={(event) => onChangeCoin(event, 0)}
@@ -102,7 +109,6 @@ export function Coin() {
         </div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 p-1 bg-white rounded-full">
           <Button
-            // className="align-center"
             onClick={onSwitchCoin}
             radius="full"
             variant="faded"
@@ -114,8 +120,7 @@ export function Coin() {
         </div>
         <div className=" flex flex-row gap-4">
           <Select
-            label="Coin"
-            className="max-w-xs"
+            label="To:"
             placeholder="Select coin"
             onChange={(event) => onChangeCoin(event, 1)}
             selectedKeys={!coins[1] ? [] : [coins[1]]}
@@ -127,17 +132,18 @@ export function Coin() {
               </SelectItem>
             ))}
           </Select>
-          <Input
-            label="Price"
-            className="max-w-xs"
-            type="text"
-            value={amounts[1]}
-            isDisabled
-          />
         </div>
       </div>
-      <ShowIf condition={info !== ""}>
-        <Input type="text" value={info} disabled />
+      <ShowIf condition={Number(amounts[1]) > 0}>
+        <Accordion variant="splitted">
+          <AccordionItem
+            key={1}
+            title="Price"
+            subtitle={`${amounts[1]} ${coins[1]}`}
+          >
+            {info}
+          </AccordionItem>
+        </Accordion>
       </ShowIf>
       <Button
         color="primary"
