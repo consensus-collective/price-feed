@@ -1,30 +1,12 @@
 import React, { useState } from "react";
 import { ShowIf } from "../common/show-if";
-import {
-  Avatar,
-  Select,
-  SelectItem,
-  Input,
-  Button,
-  Accordion,
-  AccordionItem,
-} from "@nextui-org/react";
+import { Input, Button, Accordion, AccordionItem } from "@nextui-org/react";
+import { SelectCoin } from "./select-coin";
 
-interface ICoin {
+export interface ICoin {
   name?: string;
   url?: string;
 }
-
-const COINS = [
-  {
-    name: "BTC",
-    url: "https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=026",
-  },
-  {
-    name: "ETH",
-    url: "https://cryptologos.cc/logos/ethereum-eth-logo.png?v=026",
-  },
-];
 
 export function Coin() {
   const [loading, setLoading] = useState<boolean>(false);
@@ -32,8 +14,10 @@ export function Coin() {
   const [amounts, setAmounts] = useState<[string, string]>(["0", "0"]);
   const [info, setInfo] = useState<string>("");
 
-  const isSame = coins[0] === coins[1];
-  const isDisable = !coins[0] || !coins[1] || isSame || Number(amounts[0]) <= 0;
+  const isSame = coins[0].name === coins[1].name;
+  const isZero = Number(amounts[0]) <= 0;
+  const isExist = coins[0].name || coins[1].name
+  const isDisable = !isExist || isSame || isZero;
 
   const onChangeAmount = (value: string) => {
     const amount = validateNumber(value);
@@ -43,28 +27,6 @@ export function Coin() {
 
     amounts[0] = amount;
     setAmounts(() => [amounts[0], "0"]);
-    setInfo("");
-  };
-
-  const onChangeCoin = (
-    event: React.ChangeEvent<HTMLSelectElement>,
-    index: number,
-  ) => {
-    const value = event.target.value;
-    const otherIndex = index === 0 ? 1 : 0;
-    const otherCoin = coins[otherIndex];
-
-    if (value !== "" && otherCoin === value) {
-      const newCoin = COINS.find((coin) => coin.name !== value);
-      if (newCoin) {
-        coins[otherIndex].name = newCoin.name;
-        coins[otherIndex].url = newCoin.url;
-      }
-    }
-
-    coins[index].name = value;
-    setCoins(() => [...coins]);
-    setAmounts(() => ["0", "0"]);
     setInfo("");
   };
 
@@ -95,8 +57,13 @@ export function Coin() {
     }
   };
 
-  const onSelectCoin = (coin: ICoin, index: number) => {
-    coins[index].url = coins[index].name !== "" ? coin.url : "";
+  const onChangeCoin = (coins: [ICoin, ICoin]) => {
+    setCoins(() => [...coins]);
+    setAmounts(() => ["0", "0"]);
+    setInfo("");
+  };
+
+  const onSelectCoin = (coins: [ICoin, ICoin]) => {
     setCoins(() => [...coins]);
   };
 
@@ -104,36 +71,14 @@ export function Coin() {
     <React.Fragment>
       <div className="flex flex-col gap-4 relative">
         <div className=" flex flex-row gap-4">
-          <Select
+          <SelectCoin
+            index={0}
+            coins={coins}
             label="From:"
-            className="max-w-xs"
             placeholder="Select coin"
-            onChange={(event) => onChangeCoin(event, 0)}
-            selectedKeys={!coins[0].name ? [] : [coins[0].name]}
-            disabledKeys={[coins[1].name ?? ""]}
-            startContent={
-              coins[0].url && (
-                <Avatar
-                  alt={coins[0].name}
-                  className="w-6 h-6"
-                  src={coins[0].url}
-                />
-              )
-            }
-          >
-            {COINS.map((coin) => (
-              <SelectItem
-                key={coin.name}
-                textValue={coin.name}
-                onClick={() => onSelectCoin(coin, 0)}
-                startContent={
-                  <Avatar alt={coin.name} className="w-6 h-6" src={coin.url} />
-                }
-              >
-                {coin.name}
-              </SelectItem>
-            ))}
-          </Select>
+            onChangeCoin={onChangeCoin}
+            onSelectCoin={onSelectCoin}
+          />
           <Input
             label="Amount"
             type="text"
@@ -154,35 +99,14 @@ export function Coin() {
           </Button>
         </div>
         <div className=" flex flex-row gap-4">
-          <Select
+          <SelectCoin
+            index={1}
+            coins={coins}
             label="To:"
             placeholder="Select coin"
-            onChange={(event) => onChangeCoin(event, 1)}
-            selectedKeys={!coins[1].name ? [] : [coins[1].name]}
-            disabledKeys={[coins[0].name ?? ""]}
-            startContent={
-              coins[1].url && (
-                <Avatar
-                  alt={coins[1].name}
-                  className="w-6 h-6"
-                  src={coins[1].url}
-                />
-              )
-            }
-          >
-            {COINS.map((coin) => (
-              <SelectItem
-                key={coin.name}
-                textValue={coin.name}
-                onClick={() => onSelectCoin(coin, 1)}
-                startContent={
-                  <Avatar alt={coin.name} className="w-6 h-6" src={coin.url} />
-                }
-              >
-                {coin.name}
-              </SelectItem>
-            ))}
-          </Select>
+            onChangeCoin={onChangeCoin}
+            onSelectCoin={onSelectCoin}
+          />
         </div>
       </div>
       <ShowIf condition={Number(amounts[1]) > 0}>
