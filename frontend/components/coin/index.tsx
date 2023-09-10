@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { MutableRefObject, useState } from "react";
 import { ShowIf } from "../common/show-if";
 import { Input, Button, Accordion, AccordionItem } from "@nextui-org/react";
 import { SelectCoin } from "./select-coin";
+import { useOutsideClick } from "@/hooks/use-outside-click.hook";
+
+export type Coins = [ICoin, ICoin];
 
 export interface ICoin {
+  open: boolean;
   name?: string;
   url?: string;
 }
@@ -13,16 +17,21 @@ const PRICE: Record<string, number> = {
   ETH: 1622.77,
 };
 
+const InitCoins = [{ open: false }, { open: false }] as Coins;
+const InitAmounts = ["0", "0"] as [string, string];
+
 export function Coin() {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [coins, setCoins] = useState<[ICoin, ICoin]>([{}, {}]);
-  const [amounts, setAmounts] = useState<[string, string]>(["0", "0"]);
+  const [coins, setCoins] = useState(InitCoins);
+  const [amounts, setAmounts] = useState(InitAmounts);
   const [infos, setInfos] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const isSame = coins[0].name === coins[1].name;
   const isZero = Number(amounts[0]) <= 0;
   const isNotExist = !coins[0].name || !coins[1].name;
   const isDisable = isNotExist || isSame || isZero;
+
+  const ref = useOutsideClick(() => onSelectCoin(coins));
 
   const onChangeAmount = (value: string) => {
     const amount = validateNumber(value);
@@ -38,10 +47,12 @@ export function Coin() {
   const onGetPrice = () => {
     if (isNotExist) return;
 
+    const [first, second] = coins;
+
     try {
+      onSelectCoin(coins);
       setLoading(true);
 
-      const [first, second] = coins;
       const ratio = PRICE[first.name as string] / PRICE[second.name as string];
       const price = Number(amounts[0]) * ratio;
       setAmounts((amounts) => [amounts[0], price.toFixed(5)]);
@@ -57,30 +68,45 @@ export function Coin() {
   };
 
   const onSwitchCoin = () => {
-    setCoins(() => [coins[1], coins[0]]);
     setInfos([]);
     setAmounts(() => [amounts[0], "0"]);
+    onSelectCoin([coins[1], coins[0]]);
   };
 
-  const onChangeCoin = (coins: [ICoin, ICoin]) => {
-    setCoins(() => [...coins]);
+  const onChangeCoin = (coins: Coins) => {
     setAmounts(() => ["0", "0"]);
     setInfos([]);
+    onSelectCoin(coins);
   };
 
-  const onSelectCoin = (coins: [ICoin, ICoin]) => {
+  const onSelectCoin = (coins: Coins) => {
+    setCoins(() => [
+      { ...coins[0], open: false },
+      { ...coins[1], open: false },
+    ]);
+  };
+
+  const onOpen = (state: boolean, index: number) => {
+    const otherIndex = index === 0 ? 1 : 0;
+    coins[index].open = state;
+    coins[otherIndex].open = false;
     setCoins(() => [...coins]);
   };
 
   return (
     <React.Fragment>
-      <div className="flex flex-col gap-4 relative">
+      <div
+        ref={ref as MutableRefObject<HTMLDivElement>}
+        className="flex flex-col gap-4 relative"
+        onClick={() => onSelectCoin(coins)}
+      >
         <div className=" flex flex-row gap-4">
           <SelectCoin
             index={0}
             coins={coins}
             label="From:"
             placeholder="Select coin"
+            onOpen={onOpen}
             onChangeCoin={onChangeCoin}
             onSelectCoin={onSelectCoin}
           />
@@ -109,6 +135,7 @@ export function Coin() {
             coins={coins}
             label="To:"
             placeholder="Select coin"
+            onOpen={onOpen}
             onChangeCoin={onChangeCoin}
             onSelectCoin={onSelectCoin}
           />
@@ -139,7 +166,10 @@ export function Coin() {
           >
             <hr style={{ marginBottom: "10px" }} />
             {infos.map((info) => (
-              <p style={{ fontSize: "13px", color: "rgba(1, 1, 1, 0.6)" }}>
+              <p
+                key={info}
+                style={{ fontSize: "13px", color: "rgba(1, 1, 1, 0.6)" }}
+              >
                 {info}
               </p>
             ))}
