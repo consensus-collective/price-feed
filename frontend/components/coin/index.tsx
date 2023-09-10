@@ -31,7 +31,17 @@ export function Coin() {
   const isNotExist = !coins[0].name || !coins[1].name;
   const isDisable = isNotExist || isSame || isZero;
 
-  const ref = useOutsideClick(() => onSelectCoin(coins));
+  const onClose = () => {
+    setCoins((coins) => {
+      coins.forEach((coin) => {
+        coin.open = false;
+      });
+
+      return [...coins];
+    });
+  };
+
+  const ref = useOutsideClick(onClose);
 
   const onChangeAmount = (value: string) => {
     const amount = validateNumber(value);
