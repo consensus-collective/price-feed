@@ -21,7 +21,7 @@ export function useCoin(fetchDelay = 0) {
     const data = COINS_JSON.slice(currentOffset, currentOffset + limit);
 
     setHasMore(items.length <= totalCoin);
-    setItems((prevItems) => [...prevItems, ...data]);
+    setItems((prevItems) => [...new Set([...prevItems, ...data])]);
     setIsLoading(false);
   };
 
