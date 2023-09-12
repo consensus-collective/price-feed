@@ -9,7 +9,7 @@ export type Coins = [ICoin, ICoin];
 export interface ICoin {
   open: boolean;
   name?: string;
-  url?: string;
+  logoURI?: string;
 }
 
 const PRICE: Record<string, number> = {
