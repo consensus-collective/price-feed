@@ -79,6 +79,13 @@ export function Coin() {
     }
   };
 
+  const onSelectCoin = (coins: Coins) => {
+    setCoins(() => [
+      { ...coins[0], open: false },
+      { ...coins[1], open: false },
+    ]);
+  };
+
   const onSwitchCoin = () => {
     setInfos([]);
     setAmounts(() => [amounts[0], "0"]);
@@ -89,13 +96,6 @@ export function Coin() {
     setAmounts(() => ["0", "0"]);
     setInfos([]);
     onSelectCoin(coins);
-  };
-
-  const onSelectCoin = (coins: Coins) => {
-    setCoins(() => [
-      { ...coins[0], open: false },
-      { ...coins[1], open: false },
-    ]);
   };
 
   const onOpen = (state: boolean, index: number) => {
@@ -120,7 +120,6 @@ export function Coin() {
             placeholder="Select coin"
             onOpen={onOpen}
             onChangeCoin={onChangeCoin}
-            onSelectCoin={onSelectCoin}
           />
           <Input
             label="Amount"
@@ -149,7 +148,6 @@ export function Coin() {
             placeholder="Select coin"
             onOpen={onOpen}
             onChangeCoin={onChangeCoin}
-            onSelectCoin={onSelectCoin}
           />
         </div>
       </div>

@@ -1,6 +1,6 @@
 import { Select, Avatar, SelectItem } from "@nextui-org/react";
 import { useInfiniteScroll } from "@nextui-org/use-infinite-scroll";
-import { Coins, ICoin } from ".";
+import { Coins } from ".";
 import { useCoin } from "@/hooks/use-coin.hook";
 
 interface IProps {
@@ -8,21 +8,12 @@ interface IProps {
   index: number;
   label: string;
   placeholder: string;
-  onSelectCoin: (coins: Coins) => void;
   onChangeCoin: (coins: Coins) => void;
   onOpen: (state: boolean, index: number) => void;
 }
 
 export default function SelectCoin(props: IProps) {
-  const {
-    index,
-    coins,
-    label,
-    placeholder,
-    onChangeCoin,
-    onSelectCoin,
-    onOpen,
-  } = props;
+  const { index, coins, label, placeholder, onChangeCoin, onOpen } = props;
 
   const coin = coins[index];
   const selectedKeys = coin?.name ? [coin.name] : [];
@@ -56,11 +47,6 @@ export default function SelectCoin(props: IProps) {
     onChangeCoin(coins);
   };
 
-  const onSelect = (coin: ICoin) => {
-    coins[index].logoURI = coins[index].name !== "" ? coin.logoURI : "";
-    onSelectCoin(coins);
-  };
-
   return (
     <Select
       items={items}
@@ -71,20 +57,28 @@ export default function SelectCoin(props: IProps) {
       placeholder={placeholder}
       onChange={onChange}
       scrollRef={scrollerRef}
-      onOpenChange={() => onOpen(!coin.open, index)}
+      onClick={() => onOpen(!coin.open, index)}
       selectedKeys={selectedKeys}
       disabledKeys={disabledKeys}
-      startContent={
-        coin.logoURI && (
-          <Avatar alt={coin.name} className="w-6 h-6" src={coin.logoURI} />
-        )
-      }
+      renderValue={(items) => {
+        return items.map((item) => (
+          <div key={item.key} className="flex items-center gap-2">
+            <Avatar
+              alt={item.data.name}
+              className="w-6 h-6"
+              src={item.data.logoURI}
+            />
+            <div className="flex flex-col">
+              <span>{item.data.symbol}</span>
+            </div>
+          </div>
+        ));
+      }}
     >
       {(item) => (
         <SelectItem
           key={item.name}
           textValue={item.symbol}
-          onClick={() => onSelect(item as unknown as ICoin)}
           startContent={
             <Avatar alt={item.name} className="w-6 h-6" src={item.logoURI} />
           }
