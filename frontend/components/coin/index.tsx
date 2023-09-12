@@ -1,8 +1,10 @@
 import React, { MutableRefObject, useState } from "react";
 import { ShowIf } from "../common/show-if";
 import { Input, Button, Accordion, AccordionItem } from "@nextui-org/react";
-import { SelectCoin } from "./select-coin";
 import { useOutsideClick } from "@/hooks/use-outside-click.hook";
+import dynamic from "next/dynamic";
+
+const SelectCoin = dynamic(() => import("./select-coin"), { ssr: false });
 
 export type Coins = [ICoin, ICoin];
 
