@@ -27,6 +27,7 @@ export function Coin() {
   const [amounts, setAmounts] = useState(InitAmounts);
   const [infos, setInfos] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [disabled, setDisabled] = useState(true);
 
   const isSame = coins[0].name === coins[1].name;
   const isZero = Number(amounts[0]) <= 0;
@@ -105,6 +106,10 @@ export function Coin() {
     setCoins(() => [...coins]);
   };
 
+  const onSwap = () => {
+    window.open("https://app.uniswap.org/#/swap");
+  };
+
   return (
     <React.Fragment>
       <div
@@ -174,7 +179,7 @@ export function Coin() {
               </p>
             }
           >
-            <hr style={{ marginBottom: "10px" }} />
+            <hr style={{ marginBottom: "10px", color: "black" }} />
             {infos.map((info) => (
               <p
                 key={info}
@@ -183,6 +188,15 @@ export function Coin() {
                 {info}
               </p>
             ))}
+            <div
+              className="flex flex-col gap-3 justify-around items-center"
+              onMouseEnter={() => setDisabled(false)}
+              onMouseLeave={() => setDisabled(true)}
+            >
+              <Button color="primary" isDisabled={disabled} onClick={onSwap}>
+                Swap Token
+              </Button>
+            </div>
           </AccordionItem>
         </Accordion>
       </ShowIf>
