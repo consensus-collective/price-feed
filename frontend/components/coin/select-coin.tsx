@@ -1,5 +1,6 @@
 import { Select, Avatar, SelectItem } from "@nextui-org/react";
 import { Coins, ICoin } from ".";
+import COINS_JSON from "./mainnet.json";
 
 interface IProps {
   coins: Coins;
@@ -10,17 +11,6 @@ interface IProps {
   onChangeCoin: (coins: Coins) => void;
   onOpen: (state: boolean, index: number) => void;
 }
-
-const COINS = [
-  {
-    name: "BTC",
-    url: "https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=026",
-  },
-  {
-    name: "ETH",
-    url: "https://cryptologos.cc/logos/ethereum-eth-logo.png?v=026",
-  },
-];
 
 export function SelectCoin(props: IProps) {
   const {
@@ -44,10 +34,10 @@ export function SelectCoin(props: IProps) {
     const otherCoin = coins[otherIndex];
 
     if (value !== "" && otherCoin.name === value) {
-      const newCoin = COINS.find((coin) => coin.name !== value);
+      const newCoin = COINS_JSON.find((coin) => coin.name !== value);
       if (newCoin) {
         coins[otherIndex].name = newCoin.name;
-        coins[otherIndex].url = newCoin.url;
+        coins[otherIndex].logoURI = newCoin.logoURI;
       }
     }
 
@@ -57,7 +47,7 @@ export function SelectCoin(props: IProps) {
   };
 
   const onSelect = (coin: ICoin) => {
-    coins[index].url = coins[index].name !== "" ? coin.url : "";
+    coins[index].logoURI = coins[index].name !== "" ? coin.logoURI : "";
     onSelectCoin(coins);
   };
 
@@ -72,21 +62,21 @@ export function SelectCoin(props: IProps) {
       selectedKeys={selectedKeys}
       disabledKeys={disabledKeys}
       startContent={
-        coin.url && (
-          <Avatar alt={coin.name} className="w-6 h-6" src={coin.url} />
+        coin.logoURI && (
+          <Avatar alt={coin.name} className="w-6 h-6" src={coin.logoURI} />
         )
       }
     >
-      {COINS.map((coin) => (
+      {COINS_JSON.map((coin) => (
         <SelectItem
           key={coin.name}
-          textValue={coin.name}
-          onClick={() => onSelect(coin as ICoin)}
+          textValue={coin.symbol}
+          onClick={() => onSelect(coin as unknown as ICoin)}
           startContent={
-            <Avatar alt={coin.name} className="w-6 h-6" src={coin.url} />
+            <Avatar alt={coin.name} className="w-6 h-6" src={coin.logoURI} />
           }
         >
-          {coin.name}
+          {coin.symbol}
         </SelectItem>
       ))}
     </Select>
