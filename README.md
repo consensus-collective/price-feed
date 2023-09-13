@@ -5,7 +5,7 @@ Clone repository:
 git clone https://github.com/consensus-collective/price-feed.git
 ```
 
-Run the development server:
+Change to frontend directory and run the development server:
 
 ```bash
 npm run dev
