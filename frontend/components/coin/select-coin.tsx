@@ -21,7 +21,6 @@ export default function SelectCoin(props: IProps) {
   const disabledKeys = disabledCoin?.name ? [disabledCoin?.name] : [];
 
   const { items, hasMore, isLoading, onLoadMore } = useCoin(500);
-
   const [, scrollerRef] = useInfiniteScroll({
     hasMore,
     isEnabled: coin.open,
@@ -31,6 +30,7 @@ export default function SelectCoin(props: IProps) {
 
   const onChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = event.target.value;
+    const selected = items.find((coin) => coin.name === value);
     const otherIndex = index === 0 ? 1 : 0;
     const otherCoin = coins[otherIndex];
 
@@ -38,12 +38,18 @@ export default function SelectCoin(props: IProps) {
       const newCoin = items.find((coin: any) => coin.name !== value);
       if (newCoin) {
         coins[otherIndex].name = newCoin.name;
+        coins[otherIndex].address = newCoin.address;
+        coins[otherIndex].decimals = newCoin.decimals;
+        coins[otherIndex].symbol = newCoin.symbol;
+
         coins[otherIndex].logoURI = newCoin.logoURI;
       }
     }
 
     coins[index].name = value;
-
+    coins[index].symbol = selected ? selected.symbol : "";
+    coins[index].address = selected ? selected.address : "";
+    coins[index].decimals = selected ? selected.decimals : "";
     onChangeCoin(coins);
   };
 

@@ -3,6 +3,8 @@ import { ShowIf } from "../common/show-if";
 import { Input, Button, Accordion, AccordionItem } from "@nextui-org/react";
 import { useOutsideClick } from "@/hooks/use-outside-click.hook";
 import dynamic from "next/dynamic";
+import { UNISWAP_V2, getTokenPrice } from "./price";
+import { formatUnits, parseUnits } from "ethers";
 
 const SelectCoin = dynamic(() => import("./select-coin"), { ssr: false });
 
@@ -10,6 +12,9 @@ export type Coins = [ICoin, ICoin];
 
 export interface ICoin {
   open: boolean;
+  symbol: string;
+  address: string;
+  decimals: number;
   name?: string;
   logoURI?: string;
 }
@@ -57,22 +62,25 @@ export function Coin() {
     setInfos([]);
   };
 
-  const onGetPrice = () => {
+  const onGetPrice = async () => {
     if (isNotExist) return;
 
     const [first, second] = coins;
 
     try {
+      const amountInBN = parseUnits(amounts[0], first.decimals);
+      const price = formatUnits(
+        await getTokenPrice(UNISWAP_V2.routerAddress, amountInBN, [
+          first.address,
+          second.address,
+        ]),
+        second.decimals,
+      );
+
       onSelectCoin(coins);
       setLoading(true);
 
-      const ratio = PRICE[first.name as string] / PRICE[second.name as string];
-      const price = Number(amounts[0]) * ratio;
-      setAmounts((amounts) => [amounts[0], price.toFixed(5)]);
-      setInfos([
-        `1 ${second.name} = ${(1 / ratio).toFixed(5)} ${first.name}`,
-        `1 ${first.name} = ${ratio.toFixed(5)} ${second.name}`,
-      ]);
+      setAmounts((amounts) => [amounts[0], Number(price).toFixed(5)]);
     } catch {
       // ignore
     } finally {
@@ -175,7 +183,7 @@ export function Coin() {
             }
             subtitle={
               <p style={{ fontSize: "16px", color: "black" }}>
-                {amounts[1]} {coins[1].name}
+                {amounts[1]} {coins[1].symbol}
               </p>
             }
           >
