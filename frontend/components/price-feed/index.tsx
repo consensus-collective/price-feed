@@ -7,9 +7,9 @@ export function PriceFeed() {
       style={{ gap: "4rem", height: "550px" }}
     >
       <div className="flex flex-col items-center">
-        <h1 style={{ fontSize: "64px" }}>Price Feed</h1>
+        <h1 style={{ fontSize: "64px" }}>Group 6 - Final Project</h1>
         <h3 style={{ color: "rgba(1, 1, 1, 0.6)", fontSize: "1.75rem" }}>
-          The ultimate solution to create web3 applications
+          Simple Price Feed App on the Ethereum Mainnet
         </h3>
       </div>
 
