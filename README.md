@@ -1,5 +1,18 @@
-## Price Feed
+## Getting Started
 
-[API](./backend/README.md)
-[APP](./frontend/README.md)
-[CONTRACT](./contract/README.md)
+Clone repository:
+```
+git clone https://github.com/consensus-collective/price-feed.git
+```
+
+Run the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
