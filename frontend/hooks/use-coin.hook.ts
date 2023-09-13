@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import COINS_JSON from "../json/mainnetSorted.json";
+import COINS_JSON from "../json/mainnet.json";
 
 const totalCoin = COINS_JSON.length;
 
