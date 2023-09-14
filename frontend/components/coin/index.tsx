@@ -29,6 +29,7 @@ export function Coin() {
   const [loading, setLoading] = useState(false);
   const [disabled, setDisabled] = useState(true);
   const [prices, setPrices] = useState<string[]>([]);
+  const [enabledButtons, setEnabledButtons] = useState(prices.map(() => false));
 
   const isSame = coins[0].name === coins[1].name;
   const isZero = Number(amounts[0]) <= 0;
@@ -126,6 +127,18 @@ export function Coin() {
     window.open(link);
   };
 
+  const handleMouseEnter = (index: number) => {
+    const updatedEnabledButtons = [...enabledButtons];
+    updatedEnabledButtons[index] = true;
+    setEnabledButtons(updatedEnabledButtons);
+  };
+
+  const handleMouseLeave = (index: number) => {
+    const updatedEnabledButtons = [...enabledButtons];
+    updatedEnabledButtons[index] = false;
+    setEnabledButtons(updatedEnabledButtons);
+  };
+
   return (
     <React.Fragment>
       <div
@@ -208,10 +221,14 @@ export function Coin() {
             ))}
             <div
               className="flex flex-col gap-3 justify-around items-center"
-              onMouseEnter={() => setDisabled(false)}
-              onMouseLeave={() => setDisabled(true)}
+              onMouseEnter={() => handleMouseEnter(index)}
+              onMouseLeave={() => handleMouseLeave(index)}
               >
-              <Button color="primary" isDisabled={disabled} onClick={() => onSwap(ROUTER_LIST[index].url)}>
+              <Button 
+                color="primary" 
+                isDisabled={!enabledButtons[index]} 
+                onClick={() => onSwap(ROUTER_LIST[index].url)}
+              >
                 Swap Token
               </Button>
             </div>
