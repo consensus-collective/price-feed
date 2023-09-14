@@ -9,7 +9,7 @@ export function PriceFeed() {
       <div className="flex flex-col items-center">
         <h1 style={{ fontSize: "64px" }}>Group 6 - Final Project</h1>
         <h3 style={{ color: "rgba(1, 1, 1, 0.6)", fontSize: "1.75rem" }}>
-          Simple Price Feed App on the Ethereum Mainnet
+          Simple Swap Aggregator on the Ethereum Mainnet
         </h3>
       </div>
 

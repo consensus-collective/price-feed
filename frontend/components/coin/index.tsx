@@ -3,7 +3,7 @@ import { ShowIf } from "../common/show-if";
 import { Input, Button, Accordion, AccordionItem } from "@nextui-org/react";
 import { useOutsideClick } from "@/hooks/use-outside-click.hook";
 import dynamic from "next/dynamic";
-import { UNISWAP_V2, getTokenPrice } from "./price";
+import { ROUTER_LIST, getTokenPrice } from "./price";
 import { formatUnits, parseUnits } from "ethers";
 
 const SelectCoin = dynamic(() => import("./select-coin"), { ssr: false });
@@ -19,13 +19,8 @@ export interface ICoin {
   logoURI?: string;
 }
 
-const PRICE: Record<string, number> = {
-  BTC: 25817.8,
-  ETH: 1622.77,
-};
-
 const InitCoins = [{ open: false }, { open: false }] as Coins;
-const InitAmounts = ["0", "0"] as [string, string];
+const InitAmounts = ["0"] as [string];
 
 export function Coin() {
   const [coins, setCoins] = useState(InitCoins);
@@ -33,6 +28,8 @@ export function Coin() {
   const [infos, setInfos] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [disabled, setDisabled] = useState(true);
+  const [prices, setPrices] = useState<string[]>([]);
+  const [enabledButtons, setEnabledButtons] = useState(prices.map(() => false));
 
   const isSame = coins[0].name === coins[1].name;
   const isZero = Number(amounts[0]) <= 0;
@@ -58,11 +55,11 @@ export function Coin() {
     }
 
     amounts[0] = amount;
-    setAmounts(() => [amounts[0], "0"]);
+    setAmounts(() => [amounts[0]]);
     setInfos([]);
   };
 
-  const onGetPrice = async () => {
+  const getPriceFromRouter = async (routerAddress: string) => {
     if (isNotExist) return;
 
     const [first, second] = coins;
@@ -70,23 +67,35 @@ export function Coin() {
     try {
       const amountInBN = parseUnits(amounts[0], first.decimals);
       const price = formatUnits(
-        await getTokenPrice(UNISWAP_V2.routerAddress, amountInBN, [
+        await getTokenPrice(routerAddress, amountInBN, [
           first.address,
           second.address,
         ]),
         second.decimals,
       );
 
-      onSelectCoin(coins);
-      setLoading(true);
-
-      setAmounts((amounts) => [amounts[0], Number(price).toFixed(5)]);
+      return Number(price).toFixed(2);
     } catch {
       // ignore
-    } finally {
-      setLoading(false);
-    }
+    };
   };
+
+  const onGetPrices = async () => {
+    setLoading(true);
+
+    const priceList = [];
+
+    for (const router of ROUTER_LIST) {
+      const price = await getPriceFromRouter(router.routerAddress);
+      if (price !== undefined){
+        priceList.push(price);
+      } else {
+        priceList.push("undefined");
+      };
+    }
+    setPrices(priceList);
+    setLoading(false);
+  }
 
   const onSelectCoin = (coins: Coins) => {
     setCoins(() => [
@@ -97,12 +106,12 @@ export function Coin() {
 
   const onSwitchCoin = () => {
     setInfos([]);
-    setAmounts(() => [amounts[0], "0"]);
+    setAmounts(() => [amounts[0]]);
     onSelectCoin([coins[1], coins[0]]);
   };
 
   const onChangeCoin = (coins: Coins) => {
-    setAmounts(() => ["0", "0"]);
+    setAmounts(() => ["0"]);
     setInfos([]);
     onSelectCoin(coins);
   };
@@ -114,8 +123,20 @@ export function Coin() {
     setCoins(() => [...coins]);
   };
 
-  const onSwap = () => {
-    window.open("https://app.uniswap.org/#/swap");
+  const onSwap = (link: string) => {
+    window.open(link);
+  };
+
+  const handleMouseEnter = (index: number) => {
+    const updatedEnabledButtons = [...enabledButtons];
+    updatedEnabledButtons[index] = true;
+    setEnabledButtons(updatedEnabledButtons);
+  };
+
+  const handleMouseLeave = (index: number) => {
+    const updatedEnabledButtons = [...enabledButtons];
+    updatedEnabledButtons[index] = false;
+    setEnabledButtons(updatedEnabledButtons);
   };
 
   return (
@@ -168,25 +189,27 @@ export function Coin() {
         color="primary"
         isLoading={loading}
         isDisabled={loading || isDisable}
-        onClick={onGetPrice}
+        onClick={onGetPrices}
       >
         {loading ? "Loading..." : "Get Prices"}
       </Button>
-      <ShowIf condition={Number(amounts[1]) > 0}>
-        <Accordion variant="splitted">
-          <AccordionItem
-            key={1}
-            title={
-              <p style={{ fontSize: "15px", color: "rgba(1, 1, 1, 0.6)" }}>
-                Price:
-              </p>
-            }
-            subtitle={
-              <p style={{ fontSize: "16px", color: "black" }}>
-                {amounts[1]} {coins[1].symbol}
-              </p>
-            }
-          >
+      <ShowIf condition={prices.length > 0}>
+        {prices.map((price, index) => (
+          <Accordion variant="splitted">
+            <AccordionItem
+              key={index}
+              title={
+                <p style={{ fontSize: "15px", color: "rgba(1, 1, 1, 0.6)" }}>
+                  {ROUTER_LIST[index].name}: 
+                </p>
+              }
+              subtitle={
+                <p style={{ fontSize: "16px", color: "black" }}>
+                  {price} {coins[1].symbol}
+                </p>
+              }
+            >
+
             <hr style={{ marginBottom: "10px", color: "black" }} />
             {infos.map((info) => (
               <p
@@ -198,15 +221,20 @@ export function Coin() {
             ))}
             <div
               className="flex flex-col gap-3 justify-around items-center"
-              onMouseEnter={() => setDisabled(false)}
-              onMouseLeave={() => setDisabled(true)}
-            >
-              <Button color="primary" isDisabled={disabled} onClick={onSwap}>
+              onMouseEnter={() => handleMouseEnter(index)}
+              onMouseLeave={() => handleMouseLeave(index)}
+              >
+              <Button 
+                color="primary" 
+                isDisabled={!enabledButtons[index]} 
+                onClick={() => onSwap(ROUTER_LIST[index].url)}
+              >
                 Swap Token
               </Button>
             </div>
           </AccordionItem>
         </Accordion>
+        ))}
       </ShowIf>
     </React.Fragment>
   );

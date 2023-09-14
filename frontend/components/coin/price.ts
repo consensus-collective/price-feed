@@ -8,11 +8,24 @@ const USDC_ADDRESS = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
 const USDT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 
 export const UNISWAP_V2 = {
-  name: "Uniswap V2",
+  name: "Uniswap",
   routerAddress: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+  url: "https://app.uniswap.org/#/swap",
 };
 
-export const ROUTER_LIST = [UNISWAP_V2];
+export const SUSHISWAP_V2 =  {
+  name: "Sushi Swap",
+  routerAddress: "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F",
+  url: "https://www.sushi.com/swap"
+};
+
+export const PANCAKESWAP_V2 = {
+  name: "Pancake Swap",
+  routerAddress: "0xEfF92A263d31888d860bD50809A8D171709b7b1c",
+  url: "https://pancakeswap.finance/swap?chain=eth"
+};
+
+export const ROUTER_LIST = [UNISWAP_V2, SUSHISWAP_V2, PANCAKESWAP_V2];
 
 export const publicClient = createPublicClient({
   chain: mainnet,
