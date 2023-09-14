@@ -74,7 +74,7 @@ export function Coin() {
         second.decimals,
       );
 
-      return Number(price).toFixed(2);
+      return Number(price).toFixed(5);
     } catch {
       // ignore
     };
